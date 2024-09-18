@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpmyadmin
+  labels:
+    app: phpmyadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: phpmyadmin
+    spec:
+      containers:
+      - name: phpmy
+        image: phpmyadmin:5.2-fpm-alpine
+        ports:
+        - containerPort: 9000
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "512m"
+          requests:
+            memory: "256Mi"
+            cpu: "512m"

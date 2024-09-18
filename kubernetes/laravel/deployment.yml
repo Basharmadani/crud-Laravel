@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laravel-deplbarca
+  labels:
+    app: laravel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: laravel
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: laravel
+    spec:
+      containers:
+        - name: laravel
+          image: mo1074/laravrlcrud:v12
+          ports:
+            - containerPort: 80
+          env:
+            - name: DB_HOST
+              value: mysql-0-service
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USERNAME
+              value: root
+            - name: DB_DATABASE
+              value: barca
+            - name: APP_ENV
+              value: local
+            - name: APP_DEBUG
+              value: "true"
+            - name: APP_KEY
+              value: base64:szGuuUsC7Dtna37fILgOhN9STVZObPkwCCB8+NkKSJs=
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "256m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            failureThreshold: 2
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 2
+      initContainers:
+        - name: init-mysql
+          image:  mysql:5.7
+          command: ['sh', '-c', 'until mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -e ";" ; do sleep 5; done;']
+
+          env:
+            - name: DB_HOST
+              value: mysql-0-service
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USERNAME
+              value: root
+
+
+
+
+
+
+
